@@ -159,6 +159,7 @@ allSubCommands :: [SubCommand]
 allSubCommands =
     [ subCat
     , subChDir
+    , subChMod
     , subDiskUsage
     -- , subFind
     , subGet
@@ -193,6 +194,13 @@ subChDir = SubCommand "cd" "Change working directory" go
         path <- getAbsolute =<< maybe getDefaultWorkingDir return mpath
         _ <- getListingOrFail path
         setWorkingDir path
+
+subChMod :: SubCommand
+subChMod = SubCommand "chmod" "Change permissions" go
+  where
+    go = chmod <$> argument bstr (completeDir <> help "the file/directory to chmod")
+               <*> argument bstr (help "permissions mode")
+    chmod path mode = SubHdfs $ setPermissions 0755 {-mode-} =<< getAbsolute path
 
 subDiskUsage :: SubCommand
 subDiskUsage = SubCommand "du" "Show the amount of space used by file or directory" go
